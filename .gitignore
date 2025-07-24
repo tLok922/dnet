@@ -1,0 +1,11 @@
+.idea/
+__pycache__/
+ckpt/
+excel/
+
+backbone/resnet/resnet101.pth
+backbone/resnext/resnext_101_32x4d.pth
+
+*.png
+utils/*.xlsx
+utils/*.png

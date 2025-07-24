@@ -1,0 +1,86 @@
+import os
+import os.path
+
+import torch.utils.data as data
+from PIL import Image
+
+
+def make_dataset(root):
+    img_list = [os.path.splitext(f)[0] for f in os.listdir(os.path.join(root, 'image')) if f.endswith('.jpg')]
+    return [
+        (os.path.join(root, 'image', img_name + '.jpg'), os.path.join(root, 'mask', img_name + '.png'),
+         os.path.join(root, 'edge', img_name + '_edge.png'))
+        for img_name in img_list]
+
+
+class ImageFolder(data.Dataset):
+    def __init__(self, root, joint_transform=None, img_transform=None, target_transform=None, edge_transform=None):
+        self.root = root
+        self.imgs = make_dataset(root)
+        self.joint_transform = joint_transform
+        self.img_transform = img_transform
+        self.target_transform = target_transform
+        self.edge_transform = edge_transform
+
+    def __getitem__(self, index):
+        img_path, gt_path, edge_path = self.imgs[index]
+        img = Image.open(img_path).convert('RGB')
+        target = Image.open(gt_path).convert('L')
+        edge = Image.open(edge_path).convert('L')
+        #print(img.size, target.size, edge.size,  img_path)
+        #if len(target.getbands()) == 4:
+        #    print(gt_path)
+        # print(len(img.getbands()), len(target.getbands()), len(edge.getbands()), gt_path )
+        #if len(img.getbands()) == len(target.getbands()) and  len(img.getbands()) == len(edge.getbands()) is False:
+        #    print(img_path)
+        #    print(len(img.getbands()), len(target.getbands()), len(edge.getbands()))
+        #if img.size == target.size and img.size == target.size is False:
+        #    print(img_path)
+        if self.joint_transform is not None:
+            img, target, edge = self.joint_transform(img, target, edge)
+        if self.img_transform is not None:
+            img = self.img_transform(img)
+        if self.target_transform is not None:
+            target = self.target_transform(target)
+        if self.edge_transform is not None:
+            edge = self.edge_transform(edge)
+
+        return img, target, edge
+
+    def __len__(self):
+        return len(self.imgs)
+
+
+# def make_dataset(root):
+#     img_list = [os.path.splitext(f)[0] for f in os.listdir(os.path.join(root, 'image')) if f.endswith('.jpg')]
+#     return [
+#         (os.path.join(root, 'image', img_name + '.jpg'), os.path.join(root, 'mask', img_name + '.png'),
+#          os.path.join(root, 'edge', img_name + '.png'))
+#         for img_name in img_list]
+#
+#
+# class ImageFolder(data.Dataset):
+#     def __init__(self, root, joint_transform=None, img_transform=None, target_transform=None):
+#         self.root = root
+#         self.imgs = make_dataset(root)
+#         self.joint_transform = joint_transform
+#         self.img_transform = img_transform
+#         self.target_transform = target_transform
+#
+#     def __getitem__(self, index):
+#         img_path, gt_path, edge_path = self.imgs[index]
+#         img = Image.open(img_path).convert('RGB')
+#         target = Image.open(gt_path)
+#         edge = Image.open(edge_path)
+#         if self.joint_transform is not None:
+#             img, target, edge = self.joint_transform(img, target, edge)
+#         if self.img_transform is not None:
+#             img = self.img_transform(img)
+#         if self.target_transform is not None:
+#             target = self.target_transform(target)
+#             edge = self.target_transform(edge)
+#
+#         return img, target, edge
+#
+#     def __len__(self):
+#         return len(self.imgs)
