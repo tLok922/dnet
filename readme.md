@@ -2,6 +2,9 @@
 
 The source code of the DNet mirror detection network of Deep-Learning Model for Mirror Detection FYP (2025). 
 
+![](images/results.png)
+From left to right: Original image, HetNet, SANet, SATNet, VCNet, DNet, GT
+
 ## Prerequisites
 - Linux or Windows
 - Python 3
